@@ -8,7 +8,10 @@ output=$( sed -e '1,1d
                     s/title:/\.TL\n/
                     s/author:/\.AU\n/
                     s/date:/\.ND\n/
-                    s/---//
+                    s/institution:/\.AI\n/
+
+                    s/\\begin{abstract}/\.AB/
+                    s/\\end{abstract}/\.AE/
 
                     s/^\#####.\(.*\)/\.NH 5\n\1\n\.PP/g
                     s/^\####.\(.*\)/\.NH 4\n\1\n\.PP/g
@@ -17,22 +20,28 @@ output=$( sed -e '1,1d
                     s/^\#.\(.*\)/\.NH 1\n\1\n\.PP/g
 
                     s/\*\*\*\(.*\)\*\*\*$/\n\.BI\ \"\1\"\ /g
-                    s/\*\*\(.*\)\*\*$/\n\.B\ \"\1\"\ /g
-                    s/\*\(.*\)\*$/\n\.I\ \"\1\"\ /g
-
                     s/\*\*\*\(.*\)\*\*\*\(.\)$/\n\.BI\ \"\1\"\ \"\2\"/g
-                    s/\*\*\(.*\)\*\*\(.\)$/\n\.B\ \"\1\"\ \"\2\"/g
-                    s/\*\(.*\)\*\(.\)$/\n\.I\ \"\1\"\ \"\2\"/g
-
                     s/\*\*\*\(.*\)\*\*\*\(.\)/\n\.BI\ \"\1\"\ \"\2\"\n/g
+
+                    s/\*\*\(.*\)\*\*$/\n\.B\ \"\1\"\ /g
+                    s/\*\*\(.*\)\*\*\(.\)$/\n\.B\ \"\1\"\ \"\2\"/g
                     s/\*\*\(.*\)\*\*\(.\)/\n\.B\ \"\1\"\ \"\2\"\n/g
+
+                    s/\*\(.*\)\*$/\n\.I\ \"\1\"\ /g
+                    s/\*\(.*\)\*\(.\)$/\n\.I\ \"\1\"\ \"\2\"/g
                     s/\*\(.*\)\*\(.\)/\n\.I\ \"\1\"\ \"\2\"\n/g
 
-                    ' $1)
-echo "$output" | groff -me -ms -kejpt -T pdf > $base.pdf
+                    s/`\(.*\)`$/\n\.CW\ \"\1\"\ /g
+                    s/`\(.*\)`\(.\)$/\n\.CW\ \"\1\"\ \"\2\"/g
+                    s/`\(.*\)`\(.\)/\n\.CW\ \"\1\"\ \"\2\"\n/g
 
-# echo "$output" > $base.ms
-# groff -ms $base.ms -T pdf > $base.pdf
+                    s/^-\ /.IP\ \\(bu\ 2\n/g
+
+                    ' $1)
+# echo "$output" | groff -me -ms -kejpt -T pdf > $base.pdf
+
+echo "$output" > $base.ms
+groff -ms $base.ms -T pdf > $base.pdf
 
 # echo "$output"
 
