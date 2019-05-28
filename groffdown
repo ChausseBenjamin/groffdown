@@ -5,7 +5,7 @@ dir=$(dirname "$file")
 base="${file%.*}"
 
 
-output=$( sed -e '1s/---/\.R1\naccumulate\n\.R2\n\.EQ\ndelim\ $$\n\.EN\n/
+output=$( sed -e '1s/---/\.EQ\ndelim\ $$\n\.EN\n/
                         s/title:/\.TL\n/
                         s/author:/\.AU\n/
                         s/date:/\.ND\n/
@@ -51,5 +51,6 @@ output=$( sed -e '1s/---/\.R1\naccumulate\n\.R2\n\.EQ\ndelim\ $$\n\.EN\n/
 # This script will compile the md document into a groff .ms file.
 #   Good for reviewing compiled .ms text for debugging the ms output
 #   as you code.
-echo "$output" > "$base".ms
+# echo "$output" > "$base".ms
+echo "$output"
 # groff -ms $base.ms -T pdf > $base.pdf
