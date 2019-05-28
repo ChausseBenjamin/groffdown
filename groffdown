@@ -5,7 +5,7 @@ dir=$(dirname "$file")
 base="${file%.*}"
 
 
-output=$( sed -e '1s/---/\.EQ\ndelim\ $$\n\.EN\n/
+output=$( sed -e '1s/---//
                         s/title:/\.TL\n/
                         s/author:/\.AU\n/
                         s/date:/\.ND\n/
