@@ -14,16 +14,18 @@ being `pandoc`, it can be quite long to compile a document (up
 to four seconds for one page documents
 in some cases) unlike Groff which is known
 to usually compile very quickly (0.1 second on average for
-one page documents).
+one page documents). As a proof of concept, this *README*
+pages can be fully compiled using groffdown to then be used by groff.
 
+# Example piping workflow
 Groffdown is a script which when run on a markdown document,
 will convert the most typical markdown syntax into groff
 (using the `ms` macros) to then send it to standard output.
 Therefore, it can be piped directly into groff (or
-it's related software).
+it's related software). Here is an example  of a complete piping
+command:
 
-# Example piping workflow
-groffdown <filename>.gd | refer -PS -e "-p$REFERBIB" | groff -me -ms -kejpt -T pdf > <filename>.pdf
+- groffdown <filename>.gd | refer -PS -e "-p$REFERBIB" | groff -me -ms -kejpt -T pdf > <filename>.pdf
 
 # Syntax goals
 - Speed
@@ -35,10 +37,11 @@ groffdown <filename>.gd | refer -PS -e "-p$REFERBIB" | groff -me -ms -kejpt -T p
 
 ### Commands similar to markdown
 - Headers (1-5)
-- Italic
-- Bold
-- Bold & Italic
+- *Italic*
+- **Bold**
+- ***Bold & Italic***
 - Bullet points
+- `Code blocks (in a monospaced font)`
 
 ### Commands similar to LaTeX
 - Abstract
