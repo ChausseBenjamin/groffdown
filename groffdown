@@ -35,15 +35,20 @@ output=$( sed -e '1,1d
                     s/`\(.*\)`\(.\)$/\n\.CW\ \"\1\"\ \"\2\"/g
                     s/`\(.*\)`\(.\)/\n\.CW\ \"\1\"\ \"\2\"\n/g
 
+                    s/^\ ...............-\ /.IP\ \\(bu\ 10\n/g
+                    s/^\ ...........-\ /.IP\ \\(bu\ 8\n/g
+                    s/^\ .......-\ /.IP\ \\(bu\ 6\n/g
+                    s/^\ ...-\ /.IP\ \\(bu\ 4\n/g
                     s/^-\ /.IP\ \\(bu\ 2\n/g
+                    s/^\ .*-\ /.IP\ \\(bu\ 12\n/g
 
                     ' $1)
 # echo "$output" | groff -me -ms -kejpt -T pdf > $base.pdf
 
-echo "$output" > $base.ms
-groff -ms $base.ms -T pdf > $base.pdf
+# echo "$output" > $base.ms
+# groff -ms $base.ms -T pdf > $base.pdf
 
-# echo "$output"
+echo "$output"
 
 # $output >> output.ms
 # s/\*\*\*.*\*\*\*/Hi\1hi/g

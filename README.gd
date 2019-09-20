@@ -5,8 +5,8 @@ date: 2019-09-19
 Markdown syntax with GNU/Troff-like compilation speeds.
 ---
 
-## What is Groffdown?
 
+# What is Groffdown?
 Groffdown aims to take the already existing (and well-known)
 markdown syntax and make it compile at speed similar to the
 ones of groff. The main compiler for markdown to pdf usually
