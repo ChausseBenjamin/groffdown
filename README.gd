@@ -15,7 +15,7 @@ to four seconds for one page documents
 in some cases) unlike Groff which is known
 to usually compile very quickly (0.1 second on average for
 one page documents). As a proof of concept, this *README*
-pages can be fully compiled using groffdown to then be used by groff.
+file can be fully compiled using groffdown to then be used by groff.
 
 # Example piping workflow
 Groffdown is a script which when run on a markdown document,
