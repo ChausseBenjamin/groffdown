@@ -2,52 +2,52 @@ This is a visual representation of the node tree used for the pattern matching
 alogorithm. It is in this repository as a reference. I'm a human too. I can
 make mistakes. Let's keep this as a debugging tool if I miswrite code.
 
-|            VISUAL TREE            |  NODE IDs  | MATCHED PATTERN |
+|            VISUAL TREE            |  NODE IDs  | MATCHED PATTERN |  IDENTITY  |
 
 .
-├── *,0                             | (A)        |        *        |
-│   ├── *,1                         | (AA)       |        **       |
-│   │   ├── _,-1                    | (AAA)      |       _**       |
-│   │   ├── *,2                     | (AAB)      |        ***      |
-│   │   └── _,2                     | (AAC)      |        **_      |
-│   ├── \,-1                        | (AB)       |       \*        |
-│   ├── _,-1                        | (AC)       |       _*        |
-│   │   └── _,-2                    | (ACA)      |      __*        |
-│   └── _,1                         | (AD)       |        *_       |
-│       └── _,2                     | (ADA)      |        *__      |
-├── _,0                             | (B)        |        _        |
-│   ├── \,-1                        | (BA)       |       \_        |
-│   └── _,1                         | (BB)       |        __       |
-│       └── _,2                     | (BBA)      |        ___      |
-├── `,0                             | (C)        |        `        |
-│   ├── \,-1                        | (CA)       |       \`        |
-│   └── `,1                         | (CB)       |       ``        |
-│       └── `,2                     | (CBA)      |        ```      |
-│           └── ¶,-1                | (CBAA)     |       ¶`        |
-└── ¶,0                             | (D)        |        ¶        |
-    ├── #,1                         | (DA)       |        ¶#       |
-    ├── -,1                         | (DB)       |        ¶-       |
-    ├── =,1                         | (DC)       |        ¶=       |
-    ├── >,1                         | (DD)       |        ¶>       |
-    ├── `,-1                        | (DE)       |       `¶        |
-    │   └── `,-2                    | (DEA)      |      ``¶        |
-    │       └── `,-3                | (DEAA)     |     ```¶        |
-    └── t,3                         | (DF)       |        ¶  t     |
-        ├── a,1                     | (DFA)      |        ¶a t     |
-        │   └── u,2                 | (DFAA)     |        ¶aut     |
-        │       └── h,4             | (DFAAA)    |        ¶auth    |
-        │           └── o,5         | (DFAAAA)   |        ¶autho   |
-        │               └── r,6     | (DFAAAAA)  |        ¶author  |
-        │                   └── :,7 | (DFAAAAAA) |        ¶author: |
-        ├── d,1                     | (DFB)      |        ¶  t     |
-        │   └── a,2                 | (DFBA)     |        ¶d t     |
-        │       └── e,4             | (DFBAA)    |        ¶date    |
-        │           ├── :,5         | (DFBAAA)   |        ¶date:   |
-        │           └── ¶,5         | (DFBAAB)   |        ¶date¶   |
-        └── t,1                     | (DFC)      |        ¶t t     |
-            └── i,2                 | (DFCA)     |        ¶tit     |
-                └── l,4             | (DFCAA)    |        ¶titl    |
-                    └── e,5         | (DFCAAA)   |        ¶title   |
-                        └── :,6     | (DFCAAAA)  |        ¶title:  |
+├── *,0                             | (A)        |        *        | italic (1) |
+│   ├── \,-1                        | (AA)       |       \*        | void   (0) |
+│   ├── *,1                         | (AB)       |        **       | bold   (2) |
+│   │   ├── _,-1                    | (ABA)      |       _**       | boldit (3) |
+│   │   ├── *,2                     | (ABB)      |        ***      | boldit (3) |
+│   │   └── _,2                     | (ABC)      |        **_      | boldit (3) |
+│   ├── _,-1                        | (AC)       |       _*        | void   (0) |
+│   │   └── _,-2                    | (ACA)      |      __*        | boldit (3) |
+│   └── _,1                         | (AD)       |        *_       | void   (0) |
+│       └── _,2                     | (ADA)      |        *__      | boldit (3) |
+├── _,0                             | (B)        |        _        | italic (1) |
+│   ├── \,-1                        | (BA)       |       \_        | void   (0) |
+│   └── _,1                         | (BB)       |        __       | bold   (2) |
+│       └── _,2                     | (BBA)      |        ___      | boldit (3) |
+├── `,0                             | (C)        |        `        | code   (4) |
+│   ├── \,-1                        | (CA)       |       \`        | void   (0) |
+│   └── `,1                         | (CB)       |       ``        | void   (0) |
+│       └── `,2                     | (CBA)      |        ```      | void   (0) |
+│           └── ¶,-1                | (CBAA)     |       ¶```      | codeB  (5) |
+└── ¶,0                             | (D)        |        ¶        | void   (0) |
+    ├── #,1                         | (DA)       |        ¶#       | header (8) |
+    ├── =,1                         | (DB)       |        ¶=       | h1     (6) |
+    ├── -,1                         | (DC)       |        ¶-       | h2     (7) |
+    ├── >,1                         | (DD)       |        ¶>       | indent(14) |
+    ├── -,-1                        | (DE)       |       -¶        | void   (0) |
+    │   └── -,-2                    | (DEA)      |      --¶        | void   (0) |
+    │       └── -,-3                | (DEAA)     |     ---¶        | yaml   (9) |
+    └── t,3                         | (DF)       |        ¶  t     | void   (0) |
+        ├── a,1                     | (DFA)      |        ¶a t     | void   (0) |
+        │   └── u,2                 | (DFAA)     |        ¶aut     | void   (0) |
+        │       └── h,4             | (DFAAA)    |        ¶auth    | void   (0) |
+        │           └── o,5         | (DFAAAA)   |        ¶autho   | void   (0) |
+        │               └── r,6     | (DFAAAAA)  |        ¶author  | void   (0) |
+        │                   └── :,7 | (DFAAAAAA) |        ¶author: | author(11) |
+        ├── d,1                     | (DFB)      |        ¶d t     | void   (0) |
+        │   └── a,2                 | (DFBA)     |        ¶dat     | void   (0) |
+        │       └── e,4             | (DFBAA)    |        ¶date    | void   (0) |
+        │           ├── :,5         | (DFBAAA)   |        ¶date:   | mdate (13) |
+        │           └── ¶,5         | (DFBAAB)   |        ¶date¶   | adata (12) |
+        └── t,1                     | (DFC)      |        ¶t t     | void   (0) |
+            └── i,2                 | (DFCA)     |        ¶tit     | void   (0) |
+                └── l,4             | (DFCAA)    |        ¶titl    | void   (0) |
+                    └── e,5         | (DFCAAA)   |        ¶title   | void   (0) |
+                        └── :,6     | (DFCAAAA)  |        ¶title:  | title (10) |
 
 43 nodes in total.
