@@ -2,10 +2,11 @@
 title: Groffdown
 author: Benjamin Chausse
 date: 2019-09-19
-Markdown syntax with GNU/Troff-like compilation speeds.
+A markdown to GNU/Troff transpiler
 ---
 
-## What is Groffdown?
+What is Groffdown?
+------------------
 
 Groffdown aims to take the already existing (and well-known)
 markdown syntax and make it compile at speed similar to the
@@ -17,7 +18,9 @@ to usually compile very quickly (0.1 second on average for
 one page documents). As a proof of concept, this *README*
 pages can be fully compiled using groffdown to then be used by groff.
 
-# Example piping workflow
+Example piping workflow
+=======================
+
 Groffdown is a script which when run on a markdown document,
 will convert the most typical markdown syntax into groff
 (using the `ms` macros) to then send it to standard output.
@@ -27,15 +30,19 @@ command:
 
 - groffdown <filename>.gd | refer -PS -e "-p$REFERBIB" | groff -me -ms -kejpt -T pdf > <filename>.pdf
 
-# Syntax goals
+Syntax goals
+============
 - Speed
 - Markdown Syntax (with yaml preamble)
 - LaTeX where markdown lacks
 
 
-## Existing Syntax
+Existing Syntax
+===============
 
-### Commands similar to markdown
+Commands similar to markdown
+----------------------------
+
 - Headers (1-5)
 - *Italic*
 - **Bold**
@@ -43,23 +50,30 @@ command:
 - Bullet points
 - `Code blocks (in a monospaced font)`
 
-### Commands similar to LaTeX
+Commands similar to LaTeX
+-------------------------
 - Abstract
 - Inline equations
 - Centered equations
 - Citations
 
-### Commands similar to YAML
+Commands similar to YAML
+------------------------
+
 - Titles
 - Authors
 - Dates
 - Author's Institution
 
-# Current issues
+Current issues
+==============
+
 - All text formatings need to be on the same line (you can't start bold
   on one line and finish on the other) Doing otherwise seems to trigger
   an unescapable recursive loop on the groff side of things.
 
-# Needed implementations
+Needed implementations
+======================
+
 - Numbered lists
 - multi-macro compatibility (mom macros for urls)
