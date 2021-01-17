@@ -22,56 +22,63 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "tree.h"
+#include "preprocessing.h"
+
 FILE *fileptr;
 char *buffer;
 long filelen;
 
-// Node tree used by the algorithm:
-#include "tree.h"
 
 
-node * match(node *n) {
-  /* int nomatch = 1; */
-  printf("Master node: %c\n", n->pattern );
-  for (int i = 0; i < n->childsize-1; i++) {
-    printf("Child %d, pattern: %c, identity: %d, position: %d\n",
-        i,
-        (n->child[i])->pattern,
-        (n->child[i])->identity,
-        (n->child[i])->pos);
+void printnode(node *n) {
+  printf("
+--------Node:--------
+pattern: %c
+pos: %d
+event: %d
+childsize: %d
+---------------------\n\n",
+    n->pattern,
+    n->pos,
+    n->event,
+    n->childsize
+  );
+}
+
+/*
+ * Checks for pattern matches within all the nodes children
+ *   returns the the deepest child for which there is a match
+ *   returns 0 if no match was found
+ *   if node a->pos, b->pos = -1, 2 (And b is a's child)
+ *     b should be changed to 3:
+ *       0(the root) -1(node a) + 3(node b) = 2
+ *       2 being b's actual position relative to root
+ */
+node * checkChildren(node *n, char *b){
+  node *curr;
+  for ( int i = 0; i < n->childsize-1; i++ ) {
+    curr = n->child[i];
+    if ( curr->pattern == b[curr->pos] ){
+      return checkChildren(curr, b+curr->pos);
+    };
   };
-  printf("\n");
-  return (n->child[1]) ;
-};
+  return n;
+}
 
 int main() {
 
-  node *test = match(&n_a);
-  test = match(test);
-  /* test = match(&test, '*'); */
+  char *c = "\\*ello";
+  c ++;
+  node *current = &main_root;
 
-  /* // Importing the file into a char[] {{{ */
-  /* // TODO: file should be either piped or passed as an argument */
-  /* fileptr = fopen("sample.gd", "rb"); */
-  /* fseek(fileptr, 0, SEEK_END); // Jump to EOF */
-  /* filelen = ftell(fileptr);    // Get byte offset */
-  /* rewind(fileptr);             // Jump back to beggining */
-  /* buffer = (char *)malloc(filelen * sizeof(char)); // Enough memory for the file */
-  /* fread(buffer, filelen, 1, fileptr);              // Read all the file */
-  /* fclose(fileptr);                                 // Close file */
-  /* // }}} */
+  /* printf("CS: %d\n", n->childsize); */
+  /* printnode(n->child[3]); */
 
-  /* // Pattern matching algorithm {{{ */
-  /* for (long i = 0; i < filelen; i++) { */
-  /*   printf("%s", *fileptr); */
-  /*   fileptr++; */
-  /* } */
-  /* // }}} */
+  node *test;
+  test = checkChildren(current, c);
+  printf("Test: %d", test->event);
 
-  /* // Node Tree test {{{ */
-  /* printf("Pattern: '%c'\n", root.pattern); */
-  /* printf("End of test."); */
-  /* // }}} */
-
-return 0;
+  return 0;
 };
+

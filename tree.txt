@@ -1,12 +1,12 @@
 This is a visual representation of the node tree used for the pattern matching
 alogorithm. It is in this repository as a reference. I'm a human too. I can
-make mistakes. Let's keep this as a debugging tool if I miswrite code.
+make mistakes. Let's keep this as a debugging tool in case I miswrite code.
 
-|            VISUAL TREE            |  NODE IDs  | MATCHED PATTERN |  IDENTITY  |
+|            VISUAL TREE            |  NODE IDs  | MATCHED PATTERN |   EVENTS   |
 
 .
 ├── *,0                             | (A)        |        *        | italic (1) |
-│   ├── \,-1                        | (AA)       |       \*        | void   (0) |
+│   ├── \,-1                        | (AA)       |       \*        | esc*  (17) |
 │   ├── *,1                         | (AB)       |        **       | bold   (2) |
 │   │   ├── _,-1                    | (ABA)      |       _**       | boldit(15) |
 │   │   ├── *,2                     | (ABB)      |        ***      | boldit (3) |
@@ -16,11 +16,11 @@ make mistakes. Let's keep this as a debugging tool if I miswrite code.
 │   └── _,1                         | (AD)       |        *_       | void   (0) |
 │       └── _,2                     | (ADA)      |        *__      | boldit (3) |
 ├── _,0                             | (B)        |        _        | italic (1) |
-│   ├── \,-1                        | (BA)       |       \_        | void   (0) |
+│   ├── \,-1                        | (BA)       |       \_        | esc_  (18) |
 │   └── _,1                         | (BB)       |        __       | bold   (2) |
 │       └── _,2                     | (BBA)      |        ___      | boldit (3) |
 ├── `,0                             | (C)        |        `        | code   (4) |
-│   ├── \,-1                        | (CA)       |       \`        | void   (0) |
+│   ├── \,-1                        | (CA)       |       \`        | esc`  (19) |
 │   └── `,1                         | (CB)       |        ``       | void   (0) |
 │       └── `,2                     | (CBA)      |        ```      | void   (0) |
 │           └── ¶,-1                | (CBAA)     |       ¶```      | codeB  (5) |
