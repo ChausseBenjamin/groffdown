@@ -1,54 +1,185 @@
-#!/bin/bash
+#!/bin/sh
 
-file=$(readlink -f "$1")
+################################################################################
+#
+# groffdown - (legacy shellscript version)
+#
+# Usage: groffdown [--debug] [-o PREFIX] FILE
+#
+################################################################################
+
+set -eu
+umask 0022
+export LC_ALL=C
+
+# usage [CODE]
+# CODE: default to 1. Error code.
+usage(){
+    set -- "${1:-1}"
+
+    _redirect=2
+    case "$1" in 0) _redirect=1; esac
+
+    printf '%s\n' "Usage: ${0##*/} [--debug] [-o PREFIX] FILE" 1>&$_redirect
+    exit $1
+}
+
+# error_exit MSG
+error_exit(){
+    printf '%s\n' "${0##*/}: $1" 1>&2
+    exit 1
+}
+
+# == Flags and global arguments ==
+DEBUG=
+OUTPUT_FILE=
+
+# == Parse argument ==
+case $# in 0) usage 1; esac
+
+while :; do
+    case $# in 0) break; esac
+
+    case $1 in -|[!-]*)        break; esac
+    case $1 in --)      shift; break; esac
+
+    case $1 in --help|--usage|'-?')
+	 usage 0
+    esac
+
+    case $1 in --d|--de|--deb|--debu|--debug)
+	DEBUG=1
+	shift
+	continue
+    esac
+
+    case $1 in -o)
+	 OUTPUT_FILE="$2"
+	 shift 2
+	 continue
+    esac
+
+    case $1 in -?*)
+	 error_exit "$1: Unknown option"
+    esac
+done
+
+case $# in 0) usage 1; esac
+
+# == Variables ==
+file="$OUTPUT_FILE"; : ${file:="$( readlink -f "$1" )"}
 dir=$(dirname "$file")
 base="${file%.*}"
 
-output=$( sed -e '1,1d
-                    s/title:/\.TL\n/
-                    s/author:/\.AU\n/
-                    s/date:/\.ND\n/
-                    s/institution:/\.AI\n/
+# == Readable regular file? ==
+if test -f "$1" && test -r "$1"; then
+    : # NOP
+else
+    error_exit "${1##*/}: Not a readable regular file"
+fi
 
-                    s/\\begin{abstract}/\.AB/
-                    s/\\end{abstract}/\.AE/
+# == Hyphened file to be real argument ==
+case "$1" in -*) set -- "./$1";; esac
 
-                    s/^\#####.\(.*\)/\.NH 5\n\1\n\.PP/g
-                    s/^\####.\(.*\)/\.NH 4\n\1\n\.PP/g
-                    s/^\###.\(.*\)/\.NH 3\n\1\n\.PP/g
-                    s/^\##.\(.*\)/\.NH 2\n\1\n\.PP/g
-                    s/^\#.\(.*\)/\.NH 1\n\1\n\.PP/g
+# == Main section ==
 
-                    s/\*\*\*\(.*\)\*\*\*$/\n\.BI\ \"\1\"\ /g
-                    s/\*\*\*\(.*\)\*\*\*\(.\)$/\n\.BI\ \"\1\"\ \"\2\"/g
-                    s/\*\*\*\(.*\)\*\*\*\(.\)/\n\.BI\ \"\1\"\ \"\2\"\n/g
+# -- Translate markdown to groff ms. --
 
-                    s/\*\*\(.*\)\*\*$/\n\.B\ \"\1\"\ /g
-                    s/\*\*\(.*\)\*\*\(.\)$/\n\.B\ \"\1\"\ \"\2\"/g
-                    s/\*\*\(.*\)\*\*\(.\)/\n\.B\ \"\1\"\ \"\2\"\n/g
+cat "$1" |
+#
+# Yaml-specifics.
+awk '
+BEGIN {
+    is_in_yaml = 0;
+}
 
-                    s/\*\(.*\)\*$/\n\.I\ \"\1\"\ /g
-                    s/\*\(.*\)\*\(.\)$/\n\.I\ \"\1\"\ \"\2\"/g
-                    s/\*\(.*\)\*\(.\)/\n\.I\ \"\1\"\ \"\2\"\n/g
+# -- Beginning of yaml. --
+NR == 1 && /^-+$/ {
+    is_in_yaml = 1;
+    next;
+}
 
-                    s/`\(.*\)`$/\n\.CW\ \"\1\"\ /g
-                    s/`\(.*\)`\(.\)$/\n\.CW\ \"\1\"\ \"\2\"/g
-                    s/`\(.*\)`\(.\)/\n\.CW\ \"\1\"\ \"\2\"\n/g
+# -- End of yaml. --
+is_in_yaml && /^-+$/ {
+    is_in_yaml = 0;
+    # YYY(Tpaefawzen): Seems like line for end of yaml should be preserved?
+}
 
-                    s/^\ ...............-\ /.IP\ \\(bu\ 10\n/g
-                    s/^\ ...........-\ /.IP\ \\(bu\ 8\n/g
-                    s/^\ .......-\ /.IP\ \\(bu\ 6\n/g
-                    s/^\ ...-\ /.IP\ \\(bu\ 4\n/g
-                    s/^-\ /.IP\ \\(bu\ 2\n/g
-                    s/^\ .*-\ /.IP\ \\(bu\ 12\n/g
+is_in_yaml {
+    # -- Yaml metadata. --
+    sub("title: *", ".TL\n");
+    sub("author: *", ".AU\n");
+    sub("date: *", ".ND\n");
+    sub("institution: *", ".AI\n");
+}
 
-                    ' $1)
-# echo "$output" | groff -me -ms -kejpt -T pdf > $base.pdf
+1' |
+#
+# Others are context-free.
+sed '
+    # -- LaTeX-style abstract. --
+    s/\\begin{abstract}/\.AB/
+    s/\\end{abstract}/\.AE/
 
-# echo "$output" > $base.ms
-# groff -ms $base.ms -T pdf > $base.pdf
+    # -- Sections. --
+    s/^\#####.\(.*\)/\.NH 5\n\1\n\.PP/g
+    s/^\####.\(.*\)/\.NH 4\n\1\n\.PP/g
+    s/^\###.\(.*\)/\.NH 3\n\1\n\.PP/g
+    s/^\##.\(.*\)/\.NH 2\n\1\n\.PP/g
+    s/^\#.\(.*\)/\.NH 1\n\1\n\.PP/g
 
-echo "$output"
+    # -- Bold and italic. --
+    s/\*\*\*\(.*\)\*\*\*$/\n\.BI\ \"\1\"\ /g
+    s/\*\*\*\(.*\)\*\*\*\(.\)$/\n\.BI\ \"\1\"\ \"\2\"/g
+    s/\*\*\*\(.*\)\*\*\*\(.\)/\n\.BI\ \"\1\"\ \"\2\"\n/g
 
-# $output >> output.ms
-# s/\*\*\*.*\*\*\*/Hi\1hi/g
+    # -- Bold. --
+    s/\*\*\(.*\)\*\*$/\n\.B\ \"\1\"\ /g
+    s/\*\*\(.*\)\*\*\(.\)$/\n\.B\ \"\1\"\ \"\2\"/g
+    s/\*\*\(.*\)\*\*\(.\)/\n\.B\ \"\1\"\ \"\2\"\n/g
+
+    # -- Italic. --
+    s/\*\(.*\)\*$/\n\.I\ \"\1\"\ /g
+    s/\*\(.*\)\*\(.\)$/\n\.I\ \"\1\"\ \"\2\"/g
+    s/\*\(.*\)\*\(.\)/\n\.I\ \"\1\"\ \"\2\"\n/g
+
+    # -- Inline code. --
+    s/`\(.*\)`$/\n\.CW\ \"\1\"\ /g
+    s/`\(.*\)`\(.\)$/\n\.CW\ \"\1\"\ \"\2\"/g
+    s/`\(.*\)`\(.\)/\n\.CW\ \"\1\"\ \"\2\"\n/g
+
+    # -- List items. --
+    s/^\ ...............-\ /.IP\ \\(bu\ 10\n/g
+    s/^\ ...........-\ /.IP\ \\(bu\ 8\n/g
+    s/^\ .......-\ /.IP\ \\(bu\ 6\n/g
+    s/^\ ...-\ /.IP\ \\(bu\ 4\n/g
+    s/^-\ /.IP\ \\(bu\ 2\n/g
+    s/^\ .*-\ /.IP\ \\(bu\ 12\n/g
+
+    # -- Begin a new paragraph. --
+    s/^$/.PP/g
+' |
+#
+# Parsing for ms things ends.
+cat > "$base.ms.tmp"
+
+tmpfname="$base.ms.tmp"
+
+# To PDF when required.
+case "$DEBUG" in "")
+    if cat "$base.ms.tmp" | groff -ms -Tpdf > "$base.pdf.tmp"; then
+	rm "$base.ms.tmp"
+    else
+	error_exit "could not convert to PDF with groff (code: $?)"
+    fi
+
+    tmpfname="$base.pdf.tmp"
+    ;;
+esac
+
+mv "$tmpfname" "${tmpfname%.tmp}"
+
+# == Finally ==
+exit $?
+
+# vim: set shiftwidth=4 softtabstop=4:
